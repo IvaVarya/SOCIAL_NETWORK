@@ -1,10 +1,14 @@
 from flask import Flask, request
 from flask_restx import Api, Resource, fields
+from flask_cors import CORS  # Импортируем CORS
 from database import create_db_engine, create_session
 from models import Base, User
 
 app = Flask(__name__)
 api = Api(app, doc='/documentation')  # URL для Swagger документации
+
+# Отключаем CORS (не настраиваем для разрешения запросов)
+CORS(app, resources={r"/*": {"origins": "*"}})  # Это строка отключает CORS для всех ресурсов
 
 # Создаем подключение к базе данных
 engine = create_db_engine()
