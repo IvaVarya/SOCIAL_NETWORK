@@ -1,6 +1,5 @@
 from flask import Flask, request, jsonify
 from flask_restx import Api, Resource, fields
-from flask_cors import CORS
 from flask_jwt_extended import JWTManager, create_access_token
 from database import create_db_engine, create_session
 from models import Base, User
