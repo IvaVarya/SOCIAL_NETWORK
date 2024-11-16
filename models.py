@@ -6,7 +6,7 @@ import bcrypt
 
 Base = declarative_base()
 
-class User(Base):  
+class User(Base):  # таблица пользователей
     __tablename__ = 'user'
     
     id = Column(Integer, primary_key=True, autoincrement=True)
