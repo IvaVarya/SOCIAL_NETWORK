@@ -1,11 +1,15 @@
 from flask import Flask, request, jsonify
 from flask_restx import Api, Resource, fields
+from flask_cors import CORS  # Импортируем CORS
 from flask_jwt_extended import JWTManager, create_access_token
 from database import create_db_engine, create_session
 from models import Base, User
 
 app = Flask(__name__)
 api = Api(app, doc='/documentation')
+
+# Разрешаем CORS для http://localhost:3000
+CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})  # Разрешение только для этого домена
 
 # Настройка секретного ключа для JWT (замените на более безопасный ключ)
 app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'  
