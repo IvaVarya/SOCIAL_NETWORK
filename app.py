@@ -1,4 +1,4 @@
-from flask import Flask, request, jsonify
+from flask import Flask, request
 from flask_restx import Api, Resource, fields
 from database import create_db_engine, create_session
 from models import Base, User
@@ -21,7 +21,7 @@ signup_model = api.model(
     }
 )
 
-# Модель для успешного ответа
+# Модель для успешного ответа при регистрации
 success_response = api.model(
     'SuccessResponse', {
         "success": fields.Boolean(description="Успешность операции"),
@@ -38,6 +38,18 @@ error_response = api.model(
     }
 )
 
+# Модель для ответа при запросе профиля пользователя
+user_profile_model = api.model(
+    'UserProfile', {
+        "id": fields.Integer(description="ID пользователя"),
+        "first_name": fields.String(description="Имя пользователя"),
+        "last_name": fields.String(description="Фамилия пользователя"),
+        "login": fields.String(description="Логин"),
+        "mail": fields.String(description="Электронная почта")
+    }
+)
+
+
 # Ресурс для регистрации пользователя
 @api.route('/api/users/register')
 class Register(Resource):
@@ -50,10 +62,9 @@ class Register(Resource):
         """Регистрирует нового пользователя"""
         req_data = request.get_json()
 
-        # Создаем сессию для работы с БД
         session = create_session(engine)
         try:
-            # Проверка на наличие пользователя с тем же логином или email
+            # Проверка на наличие пользователя с таким логином или email
             existing_user = session.query(User).filter(
                 (User.login == req_data["login"]) | (User.mail == req_data["mail"])
             ).first()
@@ -61,7 +72,7 @@ class Register(Resource):
             if existing_user:
                 return {"success": False, "msg": "Пользователь с таким логином или email уже существует"}, 400
 
-            # Создаем нового пользователя
+            # Создание нового пользователя
             new_user = User(
                 first_name=req_data["first_name"],
                 last_name=req_data["last_name"],
@@ -70,12 +81,11 @@ class Register(Resource):
             )
             new_user.set_password(req_data["password"])  # Устанавливаем хэш пароля
 
-            # Добавляем пользователя в сессию и коммитим изменения
+            # Сохраняем пользователя в базе
             session.add(new_user)
             session.commit()
 
-            # Обновляем объект после коммита, чтобы получить его id
-            session.refresh(new_user)
+            session.refresh(new_user)  # Получаем ID нового пользователя
 
             return {
                 "success": True,
@@ -84,10 +94,43 @@ class Register(Resource):
             }, 201
 
         except Exception as e:
-            session.rollback()  # В случае ошибки откатываем изменения
+            session.rollback()
             return {"success": False, "msg": str(e)}, 500
         finally:
-            session.close()  # Закрываем сессию
+            session.close()
+
+
+# Ресурс для получения данных пользователя
+@api.route('/api/users/<int:user_id>')
+class UserProfile(Resource):
+    @api.response(200, 'Информация о пользователе успешно получена', model=user_profile_model)
+    @api.response(404, 'Пользователь не найден', model=error_response)
+    @api.response(500, 'Внутренняя ошибка сервера', model=error_response)
+    @api.doc(description="Получение информации о пользователе по ID")
+    def get(self, user_id):
+        """Возвращает информацию о пользователе по ID"""
+        session = create_session(engine)
+        try:
+            # Поиск пользователя в базе данных
+            user = session.query(User).filter(User.id == user_id).first()
+
+            if not user:
+                return {"success": False, "msg": "Пользователь не найден"}, 404
+
+            # Формируем ответ с данными пользователя
+            return {
+                "id": user.id,
+                "first_name": user.first_name,
+                "last_name": user.last_name,
+                "login": user.login,
+                "mail": user.mail
+            }, 200
+
+        except Exception as e:
+            return {"success": False, "msg": str(e)}, 500
+        finally:
+            session.close()
+
 
 if __name__ == '__main__':
     app.run(debug=True)
