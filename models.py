@@ -37,16 +37,17 @@ class User(Base):  # таблица пользователей
 
     
 
-# class UserInfo(Base):  # таблица с информацией о пользователях
-#     __tablename__ = 'user_info'
+class UserInfo(Base):  # таблица с информацией о пользователях
+    __tablename__ = 'user_info'
     
-#     id = Column(Integer, primary_key=True, autoincrement=True)
-#     user_id = Column(Integer, ForeignKey('user.id', ondelete='CASCADE'), unique=True, nullable=False)
-#     birthday = Column(Date, nullable=False)
-#     country_id = Column(Integer, ForeignKey('country.id', ondelete='SET NULL'), nullable=True)
+    id = Column(Integer, primary_key=True, autoincrement=True)
+    user_id = Column(Integer, ForeignKey('user.id', ondelete='CASCADE'), unique=True, nullable=False)
+    birthday = Column(Date, nullable=False)
+    country_id = Column(Integer, ForeignKey('country.id', ondelete='SET NULL'), nullable=True)
+    city_id = Column(Integer, ForeignKey('city.id', ondelete='SET NULL'), nullable=True)
     
-#     def __repr__(self):
-#         return f"<UserInfo(birthday={self.birthday}, country_id={self.country_id} )>"
+    def __repr__(self):
+        return f"<UserInfo(birthday={self.birthday}, country_id={self.country_id}, city_id={self.city_id})>"
 
 # class Designer(Base):  # таблица для информации о дизайнере
 #     __tablename__ = 'designer'
