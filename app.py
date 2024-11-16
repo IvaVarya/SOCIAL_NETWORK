@@ -10,6 +10,7 @@ api = Api(app, doc='/documentation')
 
 # Разрешаем CORS для http://localhost:3000
 CORS(app, resources={r"/*": {"origins": "http://localhost:3000"}})  # Разрешение только для этого домена
+#CORS(app, resources={r"/api/*": {"origins": "http://localhost:3000"}})
 
 # Настройка секретного ключа для JWT (замените на более безопасный ключ)
 app.config['JWT_SECRET_KEY'] = 'your_jwt_secret_key'  
