@@ -29,25 +29,39 @@ class User(Base):  # таблица пользователей
     def __repr__(self):
         return f"<User(first_name={self.first_name}, last_name={self.last_name}, login={self.login},  mail={self.mail})>" 
     
-
-
-
-
-
-
+    
+    
+# class UserInfo(Base):  # таблица с информацией о пользователях
+#     __tablename__ = 'user_info'
+    
+#     id = Column(Integer, primary_key=True, autoincrement=True)
+#     user_id = Column(Integer, ForeignKey('user.id', ondelete='CASCADE'), unique=True, nullable=False)
+#     birthday = Column(Date, nullable=False)
+#     country_id = Column(Integer, ForeignKey('country.id', ondelete='SET NULL'), nullable=True)
+#     city_id = Column(Integer, ForeignKey('city.id', ondelete='SET NULL'), nullable=True)
+    
+#     def __repr__(self):
+#         return f"<UserInfo(birthday={self.birthday}, country_id={self.country_id}, city_id={self.city_id})>"
+    
+# class Country(Base):  # таблица для стран
+#     __tablename__ = 'country'
+    
+#     id = Column(Integer, primary_key=True, autoincrement=True)
+#     country_name = Column(String(100), nullable=False, unique=True)  # Ограничьте длину строки
+    
+#     def __repr__(self):
+#         return f"<Country(country_name={self.country_name})>"
+    
+# class City(Base):  # таблица для стран
+#     __tablename__ = 'city'
+    
+#     id = Column(Integer, primary_key=True, autoincrement=True)
+#     city_name = Column(String(100), nullable=False, unique=True)  # Ограничьте длину строки
+    
+#     def __repr__(self):
+#         return f"<City(city_name={self.city_name})>"
     
 
-class UserInfo(Base):  # таблица с информацией о пользователях
-    __tablename__ = 'user_info'
-    
-    id = Column(Integer, primary_key=True, autoincrement=True)
-    user_id = Column(Integer, ForeignKey('user.id', ondelete='CASCADE'), unique=True, nullable=False)
-    birthday = Column(Date, nullable=False)
-    country_id = Column(Integer, ForeignKey('country.id', ondelete='SET NULL'), nullable=True)
-    city_id = Column(Integer, ForeignKey('city.id', ondelete='SET NULL'), nullable=True)
-    
-    def __repr__(self):
-        return f"<UserInfo(birthday={self.birthday}, country_id={self.country_id}, city_id={self.city_id})>"
 
 # class Designer(Base):  # таблица для информации о дизайнере
 #     __tablename__ = 'designer'
@@ -123,15 +137,6 @@ class UserInfo(Base):  # таблица с информацией о польз�
     
 #     def __repr__(self):
 #         return f"<DesignerSet(sets_id={self.sets_id}, designer_id={self.designer_id})>"
-
-# class Country(Base):  # таблица для стран
-#     __tablename__ = 'country'
-    
-#     id = Column(Integer, primary_key=True, autoincrement=True)
-#     country_name = Column(String(100), nullable=False, unique=True)  # Ограничьте длину строки
-    
-#     def __repr__(self):
-#         return f"<Country(country_name={self.country_name})>"
 
 # class Manufacturer(Base):  # таблица для производителей
 #     __tablename__ = 'manufacturer'
