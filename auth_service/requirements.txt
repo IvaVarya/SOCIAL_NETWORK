@@ -1,0 +1,16 @@
+#requirements.txt
+flask
+flask-restx
+flask-cors
+flask-jwt-extended
+sqlalchemy
+psycopg2-binary
+bcrypt
+marshmallow
+structlog
+redis
+flask-caching
+prometheus-client
+python-decouple
+pytest
+alembic

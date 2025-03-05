@@ -1,0 +1,81 @@
+#docker-compose.yml
+services:
+  postgres:
+    image: postgres:13
+    container_name: postgres
+    restart: always
+    environment:
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: mars
+      POSTGRES_DB: SOCIAL_NETWORK
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres -d SOCIAL_NETWORK"]
+      interval: 5s
+      retries: 5
+      timeout: 3s
+
+  redis:
+    image: redis:latest
+    ports:
+      - "6379:6379"
+
+  prometheus:
+    image: prom/prometheus:latest
+    ports:
+      - "9090:9090"
+    volumes:
+      - ./auth_service/prometheus.yml:/etc/prometheus/prometheus.yml
+    command:
+      - '--config.file=/etc/prometheus/prometheus.yml'
+
+  auth_service:
+    build:
+      context: ./auth_service
+      dockerfile: Dockerfile
+    ports:
+      - "5001:5001"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      redis:
+        condition: service_started
+    environment:
+      - FLASK_ENV=development
+      - JWT_SECRET_KEY=your_jwt_secret_key
+      - DATABASE_URL=postgresql+psycopg2://postgres:mars@postgres:5432/SOCIAL_NETWORK
+      - REDIS_URL=redis://redis:6379/0
+    volumes:
+      - ./auth_service:/app
+    command: /bin/bash -c "alembic upgrade head && python app.py"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/metrics"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  profile_service:
+    build:
+      context: ./profile_service
+      dockerfile: Dockerfile
+    ports:
+      - "5002:5002"
+    depends_on:
+      postgres:
+        condition: service_healthy
+      auth_service:
+        condition: service_healthy
+    environment:
+      - FLASK_ENV=development
+      - JWT_SECRET_KEY=your_jwt_secret_key
+      - DATABASE_URL=postgresql+psycopg2://postgres:mars@postgres:5432/SOCIAL_NETWORK
+      - POSTGRES_PASSWORD=mars
+    volumes:
+      - ./profile_service:/app
+    command: /bin/bash -c "/wait-for-postgres.sh postgres && alembic upgrade head && python app.py"
+
+volumes:
+  postgres_data:
